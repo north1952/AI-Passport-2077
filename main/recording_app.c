@@ -5,7 +5,6 @@
 #include "bsp_audio.h"
 #include "bsp_display.h"
 #include "badge_theme.h"
-#include "ui_pixel.h"
 #include "lvgl.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -31,9 +30,9 @@ static const char *TAG = "rec_app";
 #define REC_SAMPLE_RATE  16000
 #define REC_BITS         16
 #define REC_CHANNELS     1
-#define REC_CHUNK_MS     100  // 每 100ms 一个 UDP 包
-#define REC_CHUNK_SAMPLES (REC_SAMPLE_RATE * REC_CHUNK_MS / 1000)  // 1600 samples
-#define REC_CHUNK_BYTES   (REC_CHUNK_SAMPLES * 2)                   // 3200 bytes
+#define REC_CHUNK_MS     100
+#define REC_CHUNK_SAMPLES (REC_SAMPLE_RATE * REC_CHUNK_MS / 1000)
+#define REC_CHUNK_BYTES   (REC_CHUNK_SAMPLES * 2)
 
 static lv_obj_t *s_scr, *s_status, *s_timer, *s_dot;
 static TaskHandle_t s_task;
@@ -41,7 +40,6 @@ static SemaphoreHandle_t s_done;
 static volatile bool s_recording;
 static int s_sock = -1;
 
-// 更新状态文字（从音频任务调用，需加 LVGL 锁）
 static void ui_set_status(const char *text) {
     if (!bsp_lvgl_lock(200)) return;
     if (s_status) lv_label_set_text(s_status, text);
@@ -58,7 +56,6 @@ static void ui_set_timer(int seconds) {
     bsp_lvgl_unlock();
 }
 
-// 录音任务：循环读 PCM → UDP 发送
 static void recording_task(void *arg) {
     (void)arg;
     int16_t *buf = malloc(REC_CHUNK_BYTES);
@@ -69,7 +66,6 @@ static void recording_task(void *arg) {
         return;
     }
 
-    // 创建 UDP socket
     s_sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (s_sock < 0) {
         ESP_LOGE(TAG, "Socket create failed");
@@ -100,22 +96,15 @@ static void recording_task(void *arg) {
     uint32_t last_tick = 0;
 
     while (s_recording) {
-        // 读取 PCM
         esp_err_t err = bsp_audio_read(buf, REC_CHUNK_BYTES);
         if (err != ESP_OK) {
-            ESP_LOGW(TAG, "Audio read error: %s", esp_err_to_name(err));
             vTaskDelay(pdMS_TO_TICKS(10));
             continue;
         }
-
-        // UDP 发送
         if (send(s_sock, buf, REC_CHUNK_BYTES, 0) < 0) {
-            ESP_LOGW(TAG, "UDP send failed, retrying");
             vTaskDelay(pdMS_TO_TICKS(10));
             continue;
         }
-
-        // 每秒更新计时器
         uint32_t elapsed = ((uint32_t)(esp_timer_get_time() / 1000) - start_ms) / 1000;
         if (elapsed != last_tick) {
             last_tick = elapsed;
@@ -134,39 +123,51 @@ static void recording_task(void *arg) {
 void demo_recording_enter(void) {
     const uint32_t *c = badge_theme_colors();
 
-    s_scr = ui_pixel_screen_create("会议录音");
-    lv_obj_t *panel = ui_pixel_panel_create(s_scr, 18, 58, 204, 200, UI_PAPER);
+    // 创建屏幕
+    s_scr = lv_obj_create(NULL);
+    lv_obj_remove_style_all(s_scr);
+    lv_obj_set_size(s_scr, 240, 320);
+    lv_obj_set_style_bg_color(s_scr, lv_color_hex(c[BADGE_BACKGROUND]), 0);
+    lv_obj_set_style_bg_opa(s_scr, LV_OPA_COVER, 0);
 
-    // 录音指示点（红色圆点）
-    s_dot = lv_obj_create(panel);
-    lv_obj_set_size(s_dot, 20, 20);
+    // 标题
+    lv_obj_t *title = lv_label_create(s_scr);
+    lv_label_set_text(title, "会议录音");
+    lv_obj_set_style_text_color(title, lv_color_hex(c[BADGE_ACCENT]), 0);
+    lv_obj_set_style_text_font(title, &font_ui_14, 0);
+    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 16);
+
+    // 录音指示点
+    s_dot = lv_obj_create(s_scr);
+    lv_obj_remove_style_all(s_dot);
+    lv_obj_set_size(s_dot, 16, 16);
     lv_obj_set_style_radius(s_dot, LV_RADIUS_CIRCLE, 0);
-    lv_obj_set_style_bg_color(s_dot, lv_color_hex(0xFF3333), 0);
-    lv_obj_set_style_border_width(s_dot, 0, 0);
-    lv_obj_align(s_dot, LV_ALIGN_TOP_MID, -60, 16);
+    lv_obj_set_style_bg_color(s_dot, lv_color_hex(0x666666), 0);
+    lv_obj_set_style_bg_opa(s_dot, LV_OPA_COVER, 0);
+    lv_obj_align(s_dot, LV_ALIGN_TOP_MID, -50, 50);
 
-    // 计时器（大字）
-    s_timer = lv_label_create(panel);
+    // 计时器
+    s_timer = lv_label_create(s_scr);
+    lv_label_set_text(s_timer, "0:00");
     lv_obj_set_style_text_color(s_timer, lv_color_hex(c[BADGE_TEXT]), 0);
     lv_obj_set_style_text_font(s_timer, &font_badge_28, 0);
-    lv_label_set_text(s_timer, "0:00");
-    lv_obj_align(s_timer, LV_ALIGN_TOP_MID, 20, 12);
+    lv_obj_align(s_timer, LV_ALIGN_TOP_MID, 20, 42);
 
-    // 状态文字
-    s_status = lv_label_create(panel);
+    // 状态
+    s_status = lv_label_create(s_scr);
+    lv_label_set_text(s_status, "按 OK 开始录音");
     lv_obj_set_style_text_color(s_status, lv_color_hex(c[BADGE_MUTED]), 0);
     lv_obj_set_style_text_font(s_status, &font_ui_14, 0);
     lv_obj_set_style_text_align(s_status, LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_text(s_status, "按 OK 开始录音");
-    lv_obj_align(s_status, LV_ALIGN_BOTTOM_MID, 0, -30);
+    lv_obj_align(s_status, LV_ALIGN_BOTTOM_MID, 0, -60);
 
     // 提示
-    lv_obj_t *hint = lv_label_create(panel);
+    lv_obj_t *hint = lv_label_create(s_scr);
+    lv_label_set_text(hint, "OK 开始/停止  长OK 返回");
     lv_obj_set_style_text_color(hint, lv_color_hex(c[BADGE_MUTED]), 0);
     lv_obj_set_style_text_font(hint, &font_ui_14, 0);
     lv_obj_set_style_text_align(hint, LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_text(hint, "OK 开始/停止  长OK 返回");
-    lv_obj_align(hint, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_align(hint, LV_ALIGN_BOTTOM_MID, 0, -30);
 
     lv_screen_load(s_scr);
 }
@@ -191,7 +192,6 @@ void demo_recording_key(bsp_btn_t btn, bsp_btn_ev_t ev) {
 esp_err_t demo_recording_start(void) {
     if (s_recording) return ESP_OK;
 
-    // 唤醒音频
     if (bsp_audio_is_sleeping()) {
         bsp_audio_wake();
     }
@@ -199,11 +199,8 @@ esp_err_t demo_recording_start(void) {
         ui_set_status("音频初始化失败");
         return ESP_FAIL;
     }
-
-    // 静音输出（避免回声）
     bsp_audio_set_volume(0);
 
-    // 创建完成信号量
     if (s_done) vSemaphoreDelete(s_done);
     s_done = xSemaphoreCreateBinary();
     if (!s_done) return ESP_ERR_NO_MEM;
@@ -217,7 +214,6 @@ esp_err_t demo_recording_start(void) {
         return ESP_ERR_NO_MEM;
     }
 
-    // 更新 UI
     if (bsp_lvgl_lock(200)) {
         if (s_dot) lv_obj_set_style_bg_color(s_dot, lv_color_hex(0xFF3333), 0);
         if (s_status) lv_label_set_text(s_status, "录音中... 按 OK 停止");
@@ -232,19 +228,14 @@ esp_err_t demo_recording_stop(void) {
     if (!s_recording) return ESP_OK;
 
     s_recording = false;
-
-    // 等待任务退出（最多 3 秒）
     if (s_done) {
         xSemaphoreTake(s_done, pdMS_TO_TICKS(3000));
         vSemaphoreDelete(s_done);
         s_done = NULL;
     }
     s_task = NULL;
-
-    // 恢复音量
     bsp_audio_set_volume(40);
 
-    // 更新 UI
     if (bsp_lvgl_lock(200)) {
         if (s_dot) lv_obj_set_style_bg_color(s_dot, lv_color_hex(0x666666), 0);
         if (s_status) lv_label_set_text(s_status, "录音结束  按 OK 再来");
