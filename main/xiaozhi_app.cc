@@ -314,7 +314,7 @@ public:
             ESP_LOGI(TAG,"Service configuration reused");return true;
         }
         service_config=ServiceConfig{};
-        state(XZ_CONNECTING,"正在获取小智服务地址");
+        state(XZ_CONNECTING,"正在获取盖斯服务地址");
 #ifdef BADGE_XIAOZHI_REUSE_PROBE
         ++probe_discovery;
 #endif
@@ -327,11 +327,11 @@ public:
             badge_network_status_t net{};badge_network_status(&net);
             if(net.active)error("配网热点开启中\n影响服务发现，按 OK 重试");
             else if(!net.connected)error("Wi-Fi 已断开\n请在设置中重新连接");
-            else if(status>0)error("小智服务响应异常\n请稍后重试");
-            else error("小智服务连接超时\n请检查网络连接");
+            else if(status>0)error("盖斯服务响应异常\n请稍后重试");
+            else error("盖斯服务连接超时\n请检查网络连接");
             return false;
         }
-        Json reply(cJSON_ParseWithLength(response.data(),response.size()));if(!reply.p){error("小智服务返回数据异常");return false;}
+        Json reply(cJSON_ParseWithLength(response.data(),response.size()));if(!reply.p){error("盖斯服务返回数据异常");return false;}
         auto activation=cJSON_GetObjectItemCaseSensitive(reply.p,"activation");
         if(*str(activation,"code")){
             xz_text_copy(view.code,sizeof(view.code),str(activation,"code"));
@@ -346,7 +346,7 @@ public:
         url=str(websocket,"url");token=str(websocket,"token");version=num(websocket,"version",1);
         if(endpoint.empty()||client.empty()||topic.empty()){
             endpoint.clear();xz_endpoint_t parsed{};
-            if(!xz_endpoint(url.c_str(),&parsed)||version<1||version>3||!clean_header(token)){error("小智服务地址或协议不受支持");return false;}
+            if(!xz_endpoint(url.c_str(),&parsed)||version<1||version>3||!clean_header(token)){error("盖斯服务地址或协议不受支持");return false;}
         }
         service_config={url,token,endpoint,client,user,password,topic,version,esp_timer_get_time()};
         return true;
@@ -700,7 +700,7 @@ public:
             // Auto mode ends microphone upload when the server starts a reply.
             // Paused sessions and the short interrupt tail must not restart it.
             if(!xz_tts_allowed(conversation,view.state,esp_timer_get_time(),ignore_until))return;
-            const char *s=str(root.p,"state");if(!strcmp(s,"start")){free_codecs();view.text[0]=0;view.played_ms=view.caption_start_ms=0;received_packets=played_packets=late_writes=udp_missing=0;last_write_end=max_write_gap=0;accept_audio=true;tts_stop=0;badge_network_xiaozhi_power(true,true);state(XZ_SPEAKING,"小智正在回答");}
+            const char *s=str(root.p,"state");if(!strcmp(s,"start")){free_codecs();view.text[0]=0;view.played_ms=view.caption_start_ms=0;received_packets=played_packets=late_writes=udp_missing=0;last_write_end=max_write_gap=0;accept_audio=true;tts_stop=0;badge_network_xiaozhi_power(true,true);state(XZ_SPEAKING,"盖斯正在回答");}
             else if(!strcmp(s,"stop")){tts_stop=esp_timer_get_time();
 #ifdef BADGE_YAO_DEVICE_PROBE
                 if(context_turn){yao_probe_tts_stop=1;conversation=false;}
@@ -814,7 +814,7 @@ public:
         if(messages){char *message=nullptr;while(xQueueReceive(messages,&message,0)==pdTRUE)free(message);}
         applied_volume=101;restore_volume();view.volume=wanted_volume.load();
         pcm=static_cast<int16_t *>(malloc(3840));packet=static_cast<uint8_t *>(malloc(1517));
-        if(!pcm||!packet||!identity()){error("小智启动失败，请返回后重试");return;}
+        if(!pcm||!packet||!identity()){error("盖斯启动失败，请返回后重试");return;}
 #ifdef BADGE_XIAOZHI_DEVICE_PROBE
 #ifdef BADGE_XIAOZHI_VERIFY_ALL_VOICES
         bool decoded=voice_probe_decode_all([]{return stopping.load();});if(stopping)return;configASSERT(decoded);
@@ -887,7 +887,7 @@ public:
                     retry_at=0;retries=0;
                     reclaim_for_retry("ok_retry");
                     pcm=static_cast<int16_t *>(malloc(3840));packet=static_cast<uint8_t *>(malloc(1517));
-                    if(!pcm||!packet||!identity()){error("小智启动失败，请返回后重试");return;}
+                    if(!pcm||!packet||!identity()){error("盖斯启动失败，请返回后重试");return;}
                     fault=XZ_FAULT_NONE;failed=false;
                     establish();observed_clicks=clicks.load();
                 }
