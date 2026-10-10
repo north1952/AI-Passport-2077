@@ -182,66 +182,74 @@ void demo_recording_exit(void) {
 void demo_recording_key(bsp_btn_t btn, bsp_btn_ev_t ev) {
     if (btn == BSP_BTN_OK && ev == BSP_BTN_CLICK) {
         if (!s_recording) {
-            demo_recording_start();
+            // 开始录音
+            bsp_audio_set_volume(0);
+            if (s_done) vSemaphoreDelete(s_done);
+            s_done = xSemaphoreCreateBinary();
+            if (!s_done) return;
+            s_recording = true;
+            if (xTaskCreate(recording_task, "rec_audio", 4096, NULL, 5, &s_task) != pdPASS) {
+                s_recording = false;
+                vSemaphoreDelete(s_done);
+                s_done = NULL;
+                ui_set_status("任务创建失败");
+                return;
+            }
+            if (bsp_lvgl_lock(200)) {
+                if (s_dot) lv_obj_set_style_bg_color(s_dot, lv_color_hex(0xFF3333), 0);
+                if (s_status) lv_label_set_text(s_status, "录音中... 按 OK 停止");
+                bsp_lvgl_unlock();
+            }
+            ESP_LOGI(TAG, "Recording started");
         } else {
-            demo_recording_stop();
+            // 停止录音
+            s_recording = false;
+            if (s_done) {
+                xSemaphoreTake(s_done, pdMS_TO_TICKS(3000));
+                vSemaphoreDelete(s_done);
+                s_done = NULL;
+            }
+            s_task = NULL;
+            bsp_audio_set_volume(40);
+            if (bsp_lvgl_lock(200)) {
+                if (s_dot) lv_obj_set_style_bg_color(s_dot, lv_color_hex(0x666666), 0);
+                if (s_status) lv_label_set_text(s_status, "录音结束  按 OK 再来");
+                bsp_lvgl_unlock();
+            }
+            ESP_LOGI(TAG, "Recording stopped");
         }
     }
 }
 
 esp_err_t demo_recording_start(void) {
-    if (s_recording) return ESP_OK;
-
+    // 页面打开时自动调用：只初始化音频子系统，不开始录音
+    if (bsp_audio_init() != ESP_OK) {
+        ui_set_status("音频初始化失败");
+        return ESP_FAIL;
+    }
     if (bsp_audio_is_sleeping()) {
         bsp_audio_wake();
     }
     if (bsp_audio_set_format(REC_SAMPLE_RATE, REC_BITS, REC_CHANNELS) != ESP_OK) {
-        ui_set_status("音频初始化失败");
+        ui_set_status("音频格式设置失败");
         return ESP_FAIL;
     }
-    bsp_audio_set_volume(0);
-
-    if (s_done) vSemaphoreDelete(s_done);
-    s_done = xSemaphoreCreateBinary();
-    if (!s_done) return ESP_ERR_NO_MEM;
-
-    s_recording = true;
-    if (xTaskCreate(recording_task, "rec_audio", 4096, NULL, 5, &s_task) != pdPASS) {
-        s_recording = false;
-        vSemaphoreDelete(s_done);
-        s_done = NULL;
-        ui_set_status("任务创建失败");
-        return ESP_ERR_NO_MEM;
-    }
-
-    if (bsp_lvgl_lock(200)) {
-        if (s_dot) lv_obj_set_style_bg_color(s_dot, lv_color_hex(0xFF3333), 0);
-        if (s_status) lv_label_set_text(s_status, "录音中... 按 OK 停止");
-        bsp_lvgl_unlock();
-    }
-
-    ESP_LOGI(TAG, "Recording started");
+    ESP_LOGI(TAG, "Audio ready, press OK to start recording");
     return ESP_OK;
 }
 
 esp_err_t demo_recording_stop(void) {
-    if (!s_recording) return ESP_OK;
-
-    s_recording = false;
-    if (s_done) {
-        xSemaphoreTake(s_done, pdMS_TO_TICKS(3000));
-        vSemaphoreDelete(s_done);
-        s_done = NULL;
+    // 页面退出时自动调用：停止录音 + 恢复音量
+    if (s_recording) {
+        s_recording = false;
+        if (s_done) {
+            xSemaphoreTake(s_done, pdMS_TO_TICKS(3000));
+            vSemaphoreDelete(s_done);
+            s_done = NULL;
+        }
+        s_task = NULL;
     }
-    s_task = NULL;
     bsp_audio_set_volume(40);
-
-    if (bsp_lvgl_lock(200)) {
-        if (s_dot) lv_obj_set_style_bg_color(s_dot, lv_color_hex(0x666666), 0);
-        if (s_status) lv_label_set_text(s_status, "录音结束  按 OK 再来");
-        bsp_lvgl_unlock();
-    }
-
-    ESP_LOGI(TAG, "Recording stopped");
+    ESP_LOGI(TAG, "Recording app stopped");
     return ESP_OK;
 }
