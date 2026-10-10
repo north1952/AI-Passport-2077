@@ -60,7 +60,7 @@ def old_badge_application(data):
     if end+32>len(app) or app[end-1]!=checksum or hashlib.sha256(app[:end]).digest()!=app[end:end+32]:
         raise ValueError('Installed application checksum/hash mismatch')
     app=app[:end+32]
-    if b'Arasaka Personnel Badge 1.7.1 starting' not in app:
+    if b'空分员工牌' not in app:
         raise ValueError('Residual-tail migration only recognizes the shipped badge 1.7.1')
     return app
 
