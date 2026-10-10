@@ -80,7 +80,7 @@ extern "C" bool demo_xiaozhi_probe_ready(void){return probe_ready.load();}
 
 namespace {
 constexpr const char *TAG="xiaozhi";
-constexpr const char *OTA="https://api.tenclass.net/xiaozhi/ota/";
+constexpr const char *OTA="http://10.19.102.109:8000/xiaozhi/ota/";
 constexpr unsigned MAX_MESSAGE=2048;
 std::atomic<bool> stopping{false},background_idle{false};
 std::atomic<unsigned> clicks{0},wanted_volume{40};
@@ -337,7 +337,7 @@ public:
             xz_text_copy(view.code,sizeof(view.code),str(activation,"code"));
             state(XZ_ACTIVATION,"打开 xiaozhi.me\n控制台添加设备，输入下方码");
             // Only the user can bind their account. Retry explicitly after binding.
-            std::string ignored;http("https://api.tenclass.net/xiaozhi/ota/activate","{}",ignored);
+            std::string ignored;http("http://10.19.102.109:8000/xiaozhi/ota/activate","{}",ignored);
             return false;
         }
         view.code[0]=0;auto websocket=cJSON_GetObjectItemCaseSensitive(reply.p,"websocket");auto broker=cJSON_GetObjectItemCaseSensitive(reply.p,"mqtt");
