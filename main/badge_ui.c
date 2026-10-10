@@ -68,7 +68,7 @@ static lv_obj_t *screen,*uptime_label,*health_label,*unit_label;
 static lv_obj_t *return_overlay;
 static badge_navigation_t navigation;
 static badge_game_art_t selected_game_art;
-static char ai_status[96]="你好小智";
+static char ai_status[96]="你好盖斯";
 void badge_ui_ai_status(const char *text){snprintf(ai_status,sizeof(ai_status),"%s",text);}
 static int scan_progress=255;
 
@@ -409,7 +409,7 @@ void badge_ui_render(const badge_navigation_t *s,const char *name,const char *de
     } else if(s->page==BADGE_HOME||s->page==BADGE_QR) {
         if(tactical_layout||!identity.data) {
             if(brand_image.data){image_at(&brand_image,46,43,256);image_at(&logo_image,12,43,208);}
-            else{label("ARASAKA",46,44,148,on_accent,14);label("ACCESS PASS",46,65,148,on_accent,10);}
+            else{label("空分",46,44,148,on_accent,14);label("员工牌",46,65,148,on_accent,10);}
             if(brand_id.data)image_at(&brand_id,60,31,256);
             if(s->page==BADGE_QR)contact_content();
             else if(identity.data){
@@ -423,7 +423,7 @@ void badge_ui_render(const badge_navigation_t *s,const char *name,const char *de
             if(!portrait_layout){lv_image_set_pivot(b,0,0);lv_image_set_scale(b,180);}
             lv_obj_t *icon=lv_image_create(screen);lv_image_set_src(icon,&logo_image);lv_obj_set_pos(icon,17,38);
             lv_image_set_pivot(icon,0,0);lv_image_set_scale(icon,192);
-        } else {label("ARASAKA",52,35,174,WHITE,14);label("ACCESS PASS",52,53,174,RED,10);}
+        } else {label("空分",52,35,174,WHITE,14);label("员工牌",52,53,174,RED,10);}
         if(s->page==BADGE_QR)contact_content();
         else if(identity.data&&portrait_layout) {
             lv_obj_t *photo=lv_image_create(screen);lv_image_set_src(photo,&portrait_image);lv_obj_set_pos(photo,64,72);
@@ -471,9 +471,9 @@ void badge_ui_render(const badge_navigation_t *s,const char *name,const char *de
         badge_footer_create(screen,BADGE_HINT_CARDS);
     } else {
         label(s->page==BADGE_TERMINAL?"TERMINAL":s->page==BADGE_GAMES?"SOFTWARE":s->page==BADGE_PROFILE?"PERSONNEL":s->page==BADGE_WIFI?"NETWORK":(s->page==BADGE_AI_SETTINGS||s->page==BADGE_AI_VOLUME_PAGE)?"XIAOZHI AI":s->page==BADGE_ABOUT_SETTINGS?"ABOUT":"SYSTEM",14,40,212,WHITE,28);
-        label(s->page==BADGE_TERMINAL?"员工终端":s->page==BADGE_GAMES?"小程序":s->page==BADGE_PROFILE?"工牌资料":s->page==BADGE_WIFI?"手机配置":s->page==BADGE_SLEEP_SETTINGS?"自动息屏":(s->page==BADGE_AI_SETTINGS||s->page==BADGE_AI_VOLUME_PAGE)?"小智 AI":s->page==BADGE_ABOUT_SETTINGS?"设备信息":"设备设置",14,81,212,RED,14);
+        label(s->page==BADGE_TERMINAL?"员工终端":s->page==BADGE_GAMES?"小程序":s->page==BADGE_PROFILE?"工牌资料":s->page==BADGE_WIFI?"手机配置":s->page==BADGE_SLEEP_SETTINGS?"自动息屏":(s->page==BADGE_AI_SETTINGS||s->page==BADGE_AI_VOLUME_PAGE)?"盖斯 AI":s->page==BADGE_ABOUT_SETTINGS?"设备信息":"设备设置",14,81,212,RED,14);
         if(s->page==BADGE_TERMINAL) {
-            static const char *names[]={"小智 AI","小程序","我的二维码","系统设置","返回工牌"};
+            static const char *names[]={"盖斯 AI","小程序","我的二维码","系统设置","返回工牌"};
             static const char *codes[]={"01  XIAOZHI AI","02  MINI APPS","03  MY QR CODE","04  CONFIGURATION","05  PERSONNEL ID"};
             for(unsigned i=0;i<5;i++) {
                 label(codes[i],30,104+i*36,177,s->home_selected==i?on_accent:MUTED,10);
@@ -517,9 +517,9 @@ void badge_ui_render(const badge_navigation_t *s,const char *name,const char *de
             label(ai_status,14,276,212,MUTED,14);
             badge_footer_create(screen,BADGE_HINT_SELECT);
         } else if(s->page==BADGE_AI_VOLUME_PAGE){
-            label("小智回复音量",27,121,186,MUTED,14);
+            label("盖斯回复音量",27,121,186,MUTED,14);
             char v[16];snprintf(v,sizeof(v),"%u%%",s->ai_volume);label(v,27,145,180,WHITE,28);
-            label("仅调整小智，其他程序独立",14,236,212,MUTED,14);
+            label("仅调整盖斯，其他程序独立",14,236,212,MUTED,14);
             badge_footer_create(screen,BADGE_HINT_VOLUME);
         } else if(s->page==BADGE_ABOUT_SETTINGS){
             label("固件版本",27,119,86,MUTED,14);
