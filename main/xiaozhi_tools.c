@@ -206,7 +206,7 @@ cJSON *xz_tools_handle(const cJSON *request,unsigned volume,bool connected,uint3
     else return rpc_error(reply,-32602,"Unknown tool");
     {
         const char *error=badge_control_reserve(command,ticket);if(error)return content(reply,error,true);
-        return content(reply,badge_control_stays(command.kind)?"指令等待执行，尚未确认完成。":"切换指令已接收，正在打开目标页面或应用。本次小智对话即将结束，不需要再次打开或继续调用其它工具。此回复仅确认接收。",false);
+        return content(reply,badge_control_stays(command.kind)?"指令等待执行，尚未确认完成。":"切换指令已接收，正在打开目标页面或应用。本次盖斯对话即将结束，不需要再次打开或继续调用其它工具。此回复仅确认接收。",false);
     }
  invalid:return rpc_error(reply,-32602,"Invalid arguments; follow the tool schema and use integer values in range");
 }
