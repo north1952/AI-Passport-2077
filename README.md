@@ -1,11 +1,11 @@
 <p align="right"><a href="README.zh_CN.md">简体中文</a> · <strong>English</strong></p>
 
-# Arasaka Personnel Badge · AI Passport
+# AirSep Personnel Badge · AI Passport
 
 > Hardware Target: FoloToy AI Passport (ESP32-C3 · 8 MB Flash · 240 × 320 ST7789 display · 3 physical buttons · ES8311 audio · CW2017 fuel gauge)  
 > Firmware Version: **v2.7.1**
 
-A Cyberpunk/Arasaka corporate-themed wearable badge firmware. Integrates **6 themed mini-apps**, **full XiaoZhi AI voice interaction with 19 MCP device control tools**, **252-pose vector emotion avatars**, **5 independent local badge profile slots**, and **offline Web serial/hotspot configuration**.
+A corporate-themed wearable badge firmware for air separation engineering teams. Integrates **6 themed mini-apps**, **full Gases AI voice interaction with 19 MCP device control tools**, **252-pose vector emotion avatars**, **5 independent local badge profile slots**, and **offline Web serial/hotspot configuration**.
 
 Transitions and selections provide a single 160 ms scanning-line response with zero continuous flashing or artificial latency. All fonts, vector glyphs, and layouts are tailored for the 240 × 320 portrait display.
 
