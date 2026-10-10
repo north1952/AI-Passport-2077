@@ -8,4 +8,5 @@ typedef enum {
     BADGE_GAME_ART_YAO,
     BADGE_GAME_ART_CUPS,
     BADGE_GAME_ART_MUSE,
+    BADGE_GAME_ART_RECORDING,
 } badge_game_art_t;
