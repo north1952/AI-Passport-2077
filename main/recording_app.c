@@ -18,6 +18,9 @@
 #include <string.h>
 #include <stdio.h>
 
+LV_FONT_DECLARE(font_badge_28);
+LV_FONT_DECLARE(font_ui_14);
+
 static const char *TAG = "rec_app";
 
 // ASR 服务器地址（AgentServer）
