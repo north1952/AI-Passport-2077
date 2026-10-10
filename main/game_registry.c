@@ -7,6 +7,7 @@
 #include "yao_app.h"
 #include "shengbei_app.h"
 #include "muse_app.h"
+#include "recording_app.h"
 const badge_game_t BADGE_GAMES_REGISTRY[] = {
     {.id="muse", .description="语音输入 / 文字回复", .category="MUSE / VOICE AGENT", .artwork=BADGE_GAME_ART_MUSE,
      .lifecycle={.name="Muse", .enter=demo_muse_enter, .exit=demo_muse_exit,
@@ -26,5 +27,8 @@ const badge_game_t BADGE_GAMES_REGISTRY[] = {
     {.id="holy-cup", .description="默念问题 / 掷杯决策", .category="ORACLE / DECISION", .artwork=BADGE_GAME_ART_CUPS,
      .lifecycle={.name="圣杯决策", .enter=demo_shengbei_enter, .exit=demo_shengbei_exit,
         .key=demo_shengbei_key, .start=demo_shengbei_start, .stop=demo_shengbei_stop}},
+    {.id="meeting-rec", .description="会议录音 / 实时推流", .category="MEETING / RECORD", .artwork=BADGE_GAME_ART_RECORDING,
+     .lifecycle={.name="会议录音", .enter=demo_recording_enter, .exit=demo_recording_exit,
+        .key=demo_recording_key, .start=demo_recording_start, .stop=demo_recording_stop}},
 };
 const size_t BADGE_GAME_COUNT=sizeof(BADGE_GAMES_REGISTRY)/sizeof(BADGE_GAMES_REGISTRY[0]);
