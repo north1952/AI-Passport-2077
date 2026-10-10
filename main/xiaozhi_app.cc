@@ -908,7 +908,7 @@ public:
                 if(!playback_probe_sent&&view.state==XZ_READY){
                     Json test(cJSON_CreateObject());cJSON_AddStringToObject(test.p,"type","listen");
                     cJSON_AddStringToObject(test.p,"session_id",session.c_str());cJSON_AddStringToObject(test.p,"state","detect");
-                    cJSON_AddStringToObject(test.p,"text","你好小智");
+                    cJSON_AddStringToObject(test.p,"text","你好盖斯");
                     conversation=true;badge_network_xiaozhi_power(true,true);state(XZ_THINKING,"等待测试回复");
                     send_text(json_text(test.p));playback_probe_sent=true;
                     // A synthetic Opus silence packet establishes the UDP return
