@@ -18,7 +18,7 @@
 #include <stdio.h>
 
 LV_FONT_DECLARE(font_badge_28);
-LV_FONT_DECLARE(font_ui_14);
+LV_FONT_DECLARE(font_muyu_14);
 
 static const char *TAG = "rec_app";
 
@@ -134,7 +134,7 @@ void demo_recording_enter(void) {
     lv_obj_t *title = lv_label_create(s_scr);
     lv_label_set_text(title, "会议录音");
     lv_obj_set_style_text_color(title, lv_color_hex(c[BADGE_ACCENT]), 0);
-    lv_obj_set_style_text_font(title, &font_ui_14, 0);
+    lv_obj_set_style_text_font(title, &font_muyu_14, 0);
     lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 16);
 
     // 录音指示点
@@ -157,7 +157,7 @@ void demo_recording_enter(void) {
     s_status = lv_label_create(s_scr);
     lv_label_set_text(s_status, "按 OK 开始录音");
     lv_obj_set_style_text_color(s_status, lv_color_hex(c[BADGE_MUTED]), 0);
-    lv_obj_set_style_text_font(s_status, &font_ui_14, 0);
+    lv_obj_set_style_text_font(s_status, &font_muyu_14, 0);
     lv_obj_set_style_text_align(s_status, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(s_status, LV_ALIGN_BOTTOM_MID, 0, -60);
 
@@ -165,7 +165,7 @@ void demo_recording_enter(void) {
     lv_obj_t *hint = lv_label_create(s_scr);
     lv_label_set_text(hint, "OK 开始/停止  长OK 返回");
     lv_obj_set_style_text_color(hint, lv_color_hex(c[BADGE_MUTED]), 0);
-    lv_obj_set_style_text_font(hint, &font_ui_14, 0);
+    lv_obj_set_style_text_font(hint, &font_muyu_14, 0);
     lv_obj_set_style_text_align(hint, LV_TEXT_ALIGN_CENTER, 0);
     lv_obj_align(hint, LV_ALIGN_BOTTOM_MID, 0, -30);
 
