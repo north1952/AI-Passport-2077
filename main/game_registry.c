@@ -20,7 +20,7 @@ const badge_game_t BADGE_GAMES_REGISTRY[] = {
     {.id="leo-radio", .description="城市电台 / 在线收听", .category="LEO / INTERNET RADIO", .artwork=BADGE_GAME_ART_RADIO, .back=demo_radio_back,
      .lifecycle={.name="城市电台", .enter=demo_radio_enter, .exit=demo_radio_exit,
         .key=demo_radio_key, .start=demo_radio_start, .stop=demo_radio_stop}},
-    {.id="cyber-yao", .description="六爻起卦 / 小智解读", .category="CYBER YAO", .artwork=BADGE_GAME_ART_YAO,
+    {.id="cyber-yao", .description="六爻起卦 / 盖斯解读", .category="CYBER YAO", .artwork=BADGE_GAME_ART_YAO,
      .lifecycle={.name="赛博摇卦", .enter=demo_yao_enter, .exit=demo_yao_exit,
         .key=demo_yao_key, .start=demo_yao_start, .stop=demo_yao_stop}},
     {.id="holy-cup", .description="默念问题 / 掷杯决策", .category="ORACLE / DECISION", .artwork=BADGE_GAME_ART_CUPS,
