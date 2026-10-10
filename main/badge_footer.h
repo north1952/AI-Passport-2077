@@ -6,7 +6,7 @@ extern "C" {
 #endif
 LV_FONT_DECLARE(font_badge_10);
 #define BADGE_HINT_REMINDER "OK返回工牌"
-#define BADGE_HINT_HOME "上小程序 下亮码 OK菜单 长OK切换 长上小智"
+#define BADGE_HINT_HOME "上小程序 下亮码 OK菜单 长OK切换 长上盖斯"
 /* Long-press keys are prefixed with 长; all hints fit one fixed bottom row. */
 #define BADGE_HINT_MUYU "OK敲 上自动 下节奏 长上存 长下音量 长OK返回"
 #define BADGE_HINT_VOICE_PACKS "上下选 OK进入 长上音量 长下停止 长OK返回"
@@ -18,7 +18,7 @@ LV_FONT_DECLARE(font_badge_10);
 #define BADGE_HINT_MENU "上下选择 OK进入 长OK返回"
 #define BADGE_HINT_APPS "上下选择 OK启动 长OK返回"
 #define BADGE_HINT_YAO_CAST "OK投掷 长下重起 长OK返回"
-#define BADGE_HINT_YAO_RESULT "上下阅读 OK小智解读 长下重起 长OK返回"
+#define BADGE_HINT_YAO_RESULT "上下阅读 OK盖斯解读 长下重起 长OK返回"
 #define BADGE_HINT_SHENGBEI "OK再掷 长OK返回"
 #define BADGE_HINT_SETTINGS "上下选择 OK进入 长OK返回"
 #define BADGE_HINT_BRIGHTNESS "上下亮度 OK确认 长OK返回"
